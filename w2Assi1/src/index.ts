@@ -1,12 +1,13 @@
 import express from "express";
 
 const app = express();
+app.use(express.json());
 const PORT = 3000;
 
 const tasks:{
     id:number,
     title:string,
-    description:string
+    isCompleted:boolean
 }[] = [];
 
 app.get("/",(req,res)=>{
@@ -32,6 +33,20 @@ app.get("/tasks/:id",(req,res)=>{
         res.json(task);
     }
     res.status(404).json({ "error": "Task 99 not found" });
+})
+
+app.post("/tasks",(req,res)=>{
+    const {title} = req.body;
+    if(!title){
+        res.status(400).json({"error":"what's wrong"});
+    }
+    const newTask = {
+        id:tasks.length+1,
+        title,
+        isCompleted:false
+    }
+    tasks.push(newTask);
+    res.status(201).json(newTask);
 })
 
 app.listen(PORT,()=>{
