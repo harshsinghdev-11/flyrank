@@ -31,6 +31,7 @@ app.get("/tasks/:id",(req,res)=>{
     const task = tasks.find(t=>t.id===taskId);
     if(task){
         res.json(task);
+        return;
     }
     res.status(404).json({ "error": "Task 99 not found" });
 })
@@ -47,6 +48,50 @@ app.post("/tasks",(req,res)=>{
     }
     tasks.push(newTask);
     res.status(201).json(newTask);
+})
+
+app.put("/tasks/:id",(req,res)=>{
+    const taskId = parseInt(req.params.id);
+    if(!taskId || isNaN(taskId) || taskId<=0){
+        res.status(400).json({"error":"Invalid task ID"});
+        return;
+    }
+    const task = tasks.find(t=>t.id===taskId);
+    if(!task){
+        res.status(404).json({"error":"Unknown id"});
+        return;
+    }
+    const {title,isCompleted} = req.body;
+    if(title===undefined || isCompleted===undefined || (typeof isCompleted!=="boolean") || (typeof title!=="string")){
+        res.status(400).json({"error":"Empty/invalid body"});
+        return;
+    }
+
+    if(title!==undefined){
+        task.title = title;
+    }
+
+    if(isCompleted!==undefined){
+        task.isCompleted = isCompleted;
+    }
+
+    res.json(task);
+})
+
+app.delete("/tasks/:id",(req,res)=>{
+    const taskId = parseInt(req.params.id);
+    const taskIndex = tasks.findIndex(t=>t.id===taskId);
+    if(!taskId || isNaN(taskId) || taskId<=0){
+        res.status(400).json({"error":"Invalid task ID"});
+        return;
+    }
+    const task = tasks.find(t=>t.id===taskId);
+    if(!task){
+        res.status(404).json({"error":"Unknown id"});
+        return;
+    }
+    tasks.splice(taskIndex,1);
+    res.status(204).json({"No Content":"success, nothing to say"});
 })
 
 app.listen(PORT,()=>{
